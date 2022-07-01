@@ -17,6 +17,7 @@ async function run(){
     try{
         await client.connect()
         const ToDosCollection = client.db('ToDoApp').collection('ToDos');
+        const completedTaskCollection = client.db('ToDoApp').collection('completed');
 
         app.post('/toDo',async(req,res)=>{
             const ToDo = req.body;
@@ -45,6 +46,24 @@ async function run(){
             const result = await ToDosCollection.updateOne(filter,updateDoc)
             res.send(result)
           });
+
+          app.post('/complete',async(req,res)=>{
+            const task = req.body;
+            const result = await completedTaskCollection.insertOne(task);
+            res.send(result)
+          });
+
+          app.delete('/delete/:id',async(req,res)=>{
+            const id = req.params.id 
+            const result= await ToDosCollection.deleteOne({_id:ObjectId(id)})
+            res.send(result)
+          });
+
+          app.get('/completed',async(req,res)=>{
+            const query={}
+            const result = await completedTaskCollection.find(query).toArray()
+            res.send(result)
+        });
 
     }
     finally{
